@@ -1,4 +1,3 @@
-
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +18,7 @@ import { useData, Fine } from "@/contexts/DataContext";
 import { useState } from "react";
 import { Plus, Search, FileText, Edit, Trash2, Filter, Check, Ban } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 const AdminFinesPage = () => {
   const { fines, vehicles, addFine, updateFine, deleteFine } = useData();
@@ -41,6 +40,7 @@ const AdminFinesPage = () => {
   const [location, setLocation] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
+  const [officerName, setOfficerName] = useState("Officer on Duty");
   
   // Filter fines based on search and filters
   const filteredFines = fines.filter(fine => {
@@ -67,6 +67,7 @@ const AdminFinesPage = () => {
     setLocation("");
     setDate(new Date().toISOString().split('T')[0]);
     setDescription("");
+    setOfficerName("Officer on Duty");
     setIsAddDialogOpen(true);
   };
   
@@ -79,6 +80,7 @@ const AdminFinesPage = () => {
     setLocation(fine.location);
     setDate(fine.date.split('T')[0]);
     setDescription(fine.description || "");
+    setOfficerName(fine.officerName);
     setIsEditDialogOpen(true);
   };
   
@@ -118,6 +120,7 @@ const AdminFinesPage = () => {
       location,
       date: new Date(date).toISOString(),
       status: "Unpaid",
+      officerName: officerName,
       description,
     };
     
@@ -154,8 +157,7 @@ const AdminFinesPage = () => {
       return;
     }
     
-    const updatedFine: Fine = {
-      ...selectedFine,
+    const updatedFine: Partial<Fine> = {
       vehicleId: vehicle.id,
       registrationNumber,
       violationType,
@@ -163,9 +165,10 @@ const AdminFinesPage = () => {
       location,
       date: new Date(date).toISOString(),
       description,
+      officerName,
     };
     
-    updateFine(updatedFine);
+    updateFine(selectedFine.id, updatedFine);
     
     setIsEditDialogOpen(false);
     toast({
@@ -419,6 +422,16 @@ const AdminFinesPage = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Additional details about the violation"
                   rows={3}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="officerName">Officer Name</Label>
+                <Input
+                  id="officerName"
+                  value={officerName}
+                  onChange={(e) => setOfficerName(e.target.value)}
+                  placeholder="Name of issuing officer"
                 />
               </div>
             </div>

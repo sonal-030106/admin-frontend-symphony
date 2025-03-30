@@ -25,7 +25,7 @@ export interface Fine {
   location: string;
   status: "Paid" | "Unpaid";
   officerName: string;
-  description?: string; // Added this property as optional
+  description?: string;
 }
 
 export interface Yard {
