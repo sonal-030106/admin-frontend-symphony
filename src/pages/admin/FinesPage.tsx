@@ -24,8 +24,8 @@ const AdminFinesPage = () => {
   const { fines, vehicles, addFine, updateFine, deleteFine } = useData();
   
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [violationFilter, setViolationFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [violationFilter, setViolationFilter] = useState("all");
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -33,7 +33,6 @@ const AdminFinesPage = () => {
   
   const [selectedFine, setSelectedFine] = useState<Fine | null>(null);
   
-  // Form fields
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [violationType, setViolationType] = useState("");
   const [amount, setAmount] = useState("");
@@ -42,7 +41,6 @@ const AdminFinesPage = () => {
   const [description, setDescription] = useState("");
   const [officerName, setOfficerName] = useState("Officer on Duty");
   
-  // Filter fines based on search and filters
   const filteredFines = fines.filter(fine => {
     const matchesSearch = 
       searchTerm === "" || 
@@ -50,16 +48,14 @@ const AdminFinesPage = () => {
       fine.violationType.toLowerCase().includes(searchTerm.toLowerCase()) ||
       fine.location.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === "" || fine.status === statusFilter;
-    const matchesViolation = violationFilter === "" || fine.violationType === violationFilter;
+    const matchesStatus = statusFilter === "all" || fine.status === statusFilter;
+    const matchesViolation = violationFilter === "all" || fine.violationType === violationFilter;
     
     return matchesSearch && matchesStatus && matchesViolation;
   });
   
-  // Unique violation types for filter
   const violationTypes = Array.from(new Set(fines.map(fine => fine.violationType)));
   
-  // Open add dialog and reset form
   const openAddDialog = () => {
     setRegistrationNumber("");
     setViolationType("");
@@ -71,7 +67,6 @@ const AdminFinesPage = () => {
     setIsAddDialogOpen(true);
   };
   
-  // Open edit dialog and populate form
   const openEditDialog = (fine: Fine) => {
     setSelectedFine(fine);
     setRegistrationNumber(fine.registrationNumber);
@@ -84,13 +79,11 @@ const AdminFinesPage = () => {
     setIsEditDialogOpen(true);
   };
   
-  // Open delete confirmation dialog
   const openDeleteDialog = (fine: Fine) => {
     setSelectedFine(fine);
     setIsDeleteDialogOpen(true);
   };
   
-  // Handle add fine submission
   const handleAddFine = () => {
     if (!registrationNumber || !violationType || !amount || !location || !date) {
       toast({
@@ -133,7 +126,6 @@ const AdminFinesPage = () => {
     });
   };
   
-  // Handle edit fine submission
   const handleEditFine = () => {
     if (!selectedFine) return;
     
@@ -177,7 +169,6 @@ const AdminFinesPage = () => {
     });
   };
   
-  // Handle delete fine confirmation
   const handleDeleteFine = () => {
     if (!selectedFine) return;
     
@@ -190,7 +181,6 @@ const AdminFinesPage = () => {
     });
   };
   
-  // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', {
@@ -244,7 +234,7 @@ const AdminFinesPage = () => {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Statuses</SelectItem>
+                    <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="Paid">Paid</SelectItem>
                     <SelectItem value="Unpaid">Unpaid</SelectItem>
                   </SelectContent>
@@ -255,7 +245,7 @@ const AdminFinesPage = () => {
                     <SelectValue placeholder="Violation Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Violations</SelectItem>
+                    <SelectItem value="all">All Violations</SelectItem>
                     {violationTypes.map(type => (
                       <SelectItem key={type} value={type}>{type}</SelectItem>
                     ))}
@@ -264,8 +254,8 @@ const AdminFinesPage = () => {
                 
                 <Button variant="ghost" size="icon" onClick={() => {
                   setSearchTerm("");
-                  setStatusFilter("");
-                  setViolationFilter("");
+                  setStatusFilter("all");
+                  setViolationFilter("all");
                 }}>
                   <Filter className="h-4 w-4" />
                 </Button>
@@ -341,7 +331,6 @@ const AdminFinesPage = () => {
           </CardContent>
         </Card>
         
-        {/* Add Fine Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
@@ -448,7 +437,6 @@ const AdminFinesPage = () => {
           </DialogContent>
         </Dialog>
         
-        {/* Edit Fine Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
@@ -541,7 +529,6 @@ const AdminFinesPage = () => {
           </DialogContent>
         </Dialog>
         
-        {/* Delete Fine Confirmation Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent className="sm:max-w-[400px]">
             <DialogHeader>

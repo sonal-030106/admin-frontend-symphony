@@ -33,7 +33,6 @@ const AdminReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [newStatus, setNewStatus] = useState<Report["status"]>("Pending");
   
-  // Filter reports based on search and filters
   const filteredReports = reports.filter(report => {
     const matchesSearch = 
       searchTerm === "" || 
@@ -47,23 +46,19 @@ const AdminReportsPage = () => {
     return matchesSearch && matchesStatus && matchesType;
   });
   
-  // Unique report types for filter
   const reportTypes = Array.from(new Set(reports.map(report => report.type)));
   
-  // Open view dialog
   const openViewDialog = (report: Report) => {
     setSelectedReport(report);
     setIsViewDialogOpen(true);
   };
   
-  // Open update status dialog
   const openUpdateStatusDialog = (report: Report) => {
     setSelectedReport(report);
     setNewStatus(report.status);
     setIsUpdateStatusDialogOpen(true);
   };
   
-  // Handle update status submission
   const handleUpdateStatus = async () => {
     if (!selectedReport) return;
     
@@ -84,7 +79,6 @@ const AdminReportsPage = () => {
     }
   };
   
-  // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', {
@@ -94,7 +88,6 @@ const AdminReportsPage = () => {
     });
   };
   
-  // Get status badge variant
   const getStatusBadge = (status: Report["status"]) => {
     switch (status) {
       case "Pending":
@@ -108,7 +101,6 @@ const AdminReportsPage = () => {
     }
   };
   
-  // Get status icon
   const getStatusIcon = (status: Report["status"]) => {
     switch (status) {
       case "Pending":
@@ -172,7 +164,7 @@ const AdminReportsPage = () => {
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Statuses</SelectItem>
+                        <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="Pending">Pending</SelectItem>
                         <SelectItem value="In Progress">In Progress</SelectItem>
                         <SelectItem value="Resolved">Resolved</SelectItem>
@@ -184,7 +176,7 @@ const AdminReportsPage = () => {
                         <SelectValue placeholder="Report Type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Types</SelectItem>
+                        <SelectItem value="all">All Types</SelectItem>
                         {reportTypes.map(type => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
@@ -242,7 +234,6 @@ const AdminReportsPage = () => {
                                   variant="ghost" 
                                   size="icon"
                                   onClick={() => {
-                                    // Email functionality would be implemented here
                                     toast({
                                       title: "Email Sent",
                                       description: `Email sent to ${report.email}`,
@@ -449,7 +440,6 @@ const AdminReportsPage = () => {
           </TabsContent>
         </Tabs>
         
-        {/* View Report Dialog */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
           <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
@@ -521,7 +511,6 @@ const AdminReportsPage = () => {
           </DialogContent>
         </Dialog>
         
-        {/* Update Status Dialog */}
         <Dialog open={isUpdateStatusDialogOpen} onOpenChange={setIsUpdateStatusDialogOpen}>
           <DialogContent className="sm:max-w-[400px]">
             <DialogHeader>

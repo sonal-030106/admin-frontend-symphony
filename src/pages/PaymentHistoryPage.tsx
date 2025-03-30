@@ -216,7 +216,7 @@ const PaymentHistoryPage = () => {
                           <SelectValue placeholder="All Types" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Types</SelectItem>
+                          <SelectItem value="all">All Types</SelectItem>
                           <SelectItem value="fine">Traffic Fine</SelectItem>
                           <SelectItem value="tax">Road Tax</SelectItem>
                           <SelectItem value="permit">Permit Fee</SelectItem>

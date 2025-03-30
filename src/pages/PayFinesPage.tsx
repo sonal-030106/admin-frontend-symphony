@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { useData, Fine } from "@/contexts/DataContext";
