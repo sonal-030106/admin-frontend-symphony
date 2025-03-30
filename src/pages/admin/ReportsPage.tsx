@@ -1,4 +1,3 @@
-
 import AdminLayout from "@/components/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -7,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useData } from "@/contexts/DataContext";
 import { useState } from "react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Download, Filter, FileText, BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, Calendar } from "lucide-react";
+import { Download, Filter, FileText, BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, Calendar, MapPin } from "lucide-react";
 
 const violationsData = [
   { name: 'Speeding', value: 45 },
@@ -43,7 +42,6 @@ const locationData = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-// Get last 7 days data
 const getLast7DaysData = () => {
   const data = [];
   const now = new Date();
@@ -71,7 +69,6 @@ const AdminReportsPage = () => {
   const [timeRange, setTimeRange] = useState<string>("thisMonth");
   const [reportType, setReportType] = useState<string>("fines");
   
-  // Calculate summary statistics
   const totalFines = fines.length;
   const totalUnpaidFines = fines.filter(fine => fine.status === "Unpaid").length;
   const totalAmount = fines.reduce((sum, fine) => sum + fine.amount, 0);
@@ -111,7 +108,6 @@ const AdminReportsPage = () => {
           </div>
         </div>
         
-        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="pb-2">
@@ -162,7 +158,6 @@ const AdminReportsPage = () => {
           </Card>
         </div>
         
-        {/* Reports Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">
@@ -183,7 +178,6 @@ const AdminReportsPage = () => {
             </TabsTrigger>
           </TabsList>
           
-          {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
             <Card>
               <CardHeader>
@@ -268,7 +262,6 @@ const AdminReportsPage = () => {
             </div>
           </TabsContent>
           
-          {/* Violations Tab */}
           <TabsContent value="violations" className="space-y-4">
             <Card>
               <CardHeader>
@@ -373,7 +366,6 @@ const AdminReportsPage = () => {
             </div>
           </TabsContent>
           
-          {/* Trends Tab */}
           <TabsContent value="trends" className="space-y-4">
             <Card>
               <CardHeader>
@@ -497,7 +489,6 @@ const AdminReportsPage = () => {
             </div>
           </TabsContent>
           
-          {/* Locations Tab */}
           <TabsContent value="locations" className="space-y-4">
             <Card>
               <CardHeader>
@@ -601,7 +592,6 @@ const AdminReportsPage = () => {
           </TabsContent>
         </Tabs>
         
-        {/* Downloaded Reports */}
         <Card>
           <CardHeader>
             <CardTitle>Generated Reports</CardTitle>

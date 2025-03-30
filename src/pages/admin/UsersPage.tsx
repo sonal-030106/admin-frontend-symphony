@@ -1,4 +1,3 @@
-
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -201,7 +200,7 @@ const AdminUsersPage = () => {
       name,
       email,
       role,
-      status: isActive ? "active" : "inactive",
+      status: isActive ? "active" : "inactive", // Ensure this is of type "active" | "inactive" | "suspended"
       lastLogin: "",
       createdAt: new Date().toISOString()
     };

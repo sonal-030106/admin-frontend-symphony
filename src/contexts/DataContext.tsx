@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 
@@ -26,6 +25,7 @@ export interface Fine {
   location: string;
   status: "Paid" | "Unpaid";
   officerName: string;
+  description?: string; // Added this property as optional
 }
 
 export interface Yard {
@@ -143,7 +143,8 @@ const mockFines: Fine[] = [
     date: "2023-06-15",
     location: "MG Road, Delhi",
     status: "Paid",
-    officerName: "Officer Singh"
+    officerName: "Officer Singh",
+    description: "Caught speeding at 80km/h in a 50km/h zone"
   },
   {
     id: "f2",
@@ -154,7 +155,8 @@ const mockFines: Fine[] = [
     date: "2023-07-20",
     location: "Connaught Place, Delhi",
     status: "Unpaid",
-    officerName: "Officer Kumar"
+    officerName: "Officer Kumar",
+    description: "Parked in a no-parking zone"
   },
   {
     id: "f3",
@@ -165,7 +167,8 @@ const mockFines: Fine[] = [
     date: "2023-08-05",
     location: "Bandra, Mumbai",
     status: "Unpaid",
-    officerName: "Officer Patil"
+    officerName: "Officer Patil",
+    description: "Riding without helmet"
   },
   {
     id: "f4",
@@ -176,7 +179,8 @@ const mockFines: Fine[] = [
     date: "2023-09-10",
     location: "MG Road, Bangalore",
     status: "Paid",
-    officerName: "Officer Reddy"
+    officerName: "Officer Reddy",
+    description: "Crossed red light at junction"
   }
 ];
 
