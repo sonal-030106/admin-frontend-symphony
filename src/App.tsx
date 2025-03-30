@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,86 +35,88 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <DataProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/search-vehicle" element={<SearchVehiclePage />} />
-              <Route path="/pay-fines" element={<PayFinesPage />} />
-              <Route path="/locate-yards" element={<LocateYardsPage />} />
-              <Route path="/report-issues" element={<ReportIssuesPage />} />
-              <Route path="/rules-regulations" element={<RulesRegulationsPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/vehicle/:id" element={<VehicleDetailsPage />} />
-              <Route path="/payment-history" element={<PaymentHistoryPage />} />
-              
-              {/* Admin Routes */}
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute>
-                    <AdminDashboardPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/vehicles" 
-                element={
-                  <ProtectedRoute>
-                    <AdminVehiclesPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/fines" 
-                element={
-                  <ProtectedRoute>
-                    <AdminFinesPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/users" 
-                element={
-                  <ProtectedRoute>
-                    <AdminUsersPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/reports" 
-                element={
-                  <ProtectedRoute>
-                    <AdminReportsPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/settings" 
-                element={
-                  <ProtectedRoute>
-                    <AdminSettingsPage />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* 404 Route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </DataProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+const App: React.FC = () => (
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <DataProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/search-vehicle" element={<SearchVehiclePage />} />
+                <Route path="/pay-fines" element={<PayFinesPage />} />
+                <Route path="/locate-yards" element={<LocateYardsPage />} />
+                <Route path="/report-issues" element={<ReportIssuesPage />} />
+                <Route path="/rules-regulations" element={<RulesRegulationsPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/vehicle/:id" element={<VehicleDetailsPage />} />
+                <Route path="/payment-history" element={<PaymentHistoryPage />} />
+                
+                {/* Admin Routes */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminDashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/vehicles" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminVehiclesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/fines" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminFinesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/users" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminUsersPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/reports" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminReportsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminSettingsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* 404 Route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </DataProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
 
 export default App;
