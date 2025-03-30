@@ -91,8 +91,8 @@ const AdminUsersPage = () => {
 
   const [users, setUsers] = useState<AppUser[]>(initialUsers);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -113,8 +113,8 @@ const AdminUsersPage = () => {
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesRole = roleFilter === "" || user.role === roleFilter;
-    const matchesStatus = statusFilter === "" || user.status === statusFilter;
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+    const matchesStatus = statusFilter === "all" || user.status === statusFilter;
     
     return matchesSearch && matchesRole && matchesStatus;
   });
@@ -276,7 +276,7 @@ const AdminUsersPage = () => {
                     <SelectValue placeholder="Role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Roles</SelectItem>
+                    <SelectItem value="all">All Roles</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="user">User</SelectItem>
                     <SelectItem value="officer">Officer</SelectItem>
@@ -288,7 +288,7 @@ const AdminUsersPage = () => {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Statuses</SelectItem>
+                    <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Inactive</SelectItem>
                     <SelectItem value="suspended">Suspended</SelectItem>
@@ -297,8 +297,8 @@ const AdminUsersPage = () => {
                 
                 <Button variant="ghost" size="icon" onClick={() => {
                   setSearchTerm("");
-                  setRoleFilter("");
-                  setStatusFilter("");
+                  setRoleFilter("all");
+                  setStatusFilter("all");
                 }}>
                   <Filter className="h-4 w-4" />
                 </Button>
