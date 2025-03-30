@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,4 +99,40 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.rtms-navbar {
+  @apply bg-rtms-blue text-white h-16 flex items-center justify-between px-4;
+}
+
+.rtms-button {
+  @apply bg-rtms-blue hover:bg-rtms-darkblue text-white font-bold py-2 px-4 rounded;
+}
+
+.rtms-button-secondary {
+  @apply bg-white hover:bg-gray-100 text-rtms-blue font-bold py-2 px-4 rounded border border-rtms-blue;
+}
+
+.rtms-card {
+  @apply bg-white shadow-md rounded-md p-4;
+}
+
+.rtms-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.rtms-table-header {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.rtms-table-cell {
+  @apply px-6 py-4 whitespace-nowrap;
+}
+
+.rtms-input {
+  @apply mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rtms-blue focus:border-rtms-blue;
+}
+
+.rtms-link {
+  @apply text-rtms-blue hover:text-rtms-darkblue hover:underline;
 }
