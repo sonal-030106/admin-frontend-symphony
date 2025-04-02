@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,7 +14,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import governmentLogo from "/public/lovable-uploads/41d9410d-890c-440d-a36a-3970926b623a.png";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -46,7 +44,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       >
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center">
-            <img src={governmentLogo} alt="Logo" className="h-10 bg-white rounded" />
+            {/* Removing image import */}
             {!sidebarCollapsed && (
               <div className="ml-2">
                 <h1 className="text-sm font-semibold">RTMS Admin</h1>

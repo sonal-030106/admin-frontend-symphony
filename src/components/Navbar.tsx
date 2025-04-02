@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,7 +27,6 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import governmentLogo from "/public/lovable-uploads/41d9410d-890c-440d-a36a-3970926b623a.png";
 
 const Navbar = () => {
   const { currentUser, logout, isAdmin } = useAuth();
@@ -50,7 +48,7 @@ const Navbar = () => {
       <div className="flex items-center space-x-4">
         <Link to="/">
           <img 
-            src={governmentLogo} 
+            src="/public/assets/logo.png" 
             alt="Government of India" 
             className="h-10 bg-white p-1 rounded"
           />
