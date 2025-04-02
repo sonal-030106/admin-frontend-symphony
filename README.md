@@ -1,74 +1,69 @@
-# Road Transport Management System
+# Welcome to your Lovable project
 
-A comprehensive platform for managing road transport operations, vehicle registrations, and fines.
+## Project info
 
-## Description
+**URL**: https://lovable.dev/projects/5b212205-2d48-4c8d-8f69-a987388e6622
 
-The Road Transport Management System (RTMS) is a web-based application designed to streamline the management of vehicles, RTOs, and traffic violations. It provides an intuitive interface for both administrators and users to handle various transport-related operations.
+## How can I edit this code?
 
-## Features
+There are several ways of editing your application.
 
-- Vehicle Registration Management
-- RTO Office Management
-- Traffic Violation and Fine Management
-- Real-time Status Updates
-- User-friendly Interface
+**Use Lovable**
 
-## Getting Started
+Simply visit the [Lovable Project](https://lovable.dev/projects/5b212205-2d48-4c8d-8f69-a987388e6622) and start prompting.
 
-### Prerequisites
+Changes made via Lovable will be committed automatically to this repo.
 
-- Node.js (v16 or higher)
-- MongoDB
-- npm or yarn
+**Use your preferred IDE**
 
-### Installation
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-1. Clone the repository
-```bash
-git clone [repository-url]
-```
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-2. Install dependencies
-```bash
-npm install
-```
+Follow these steps:
 
-3. Start the development server
-```bash
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
+
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-## Backend Setup
+**Edit a file directly in GitHub**
 
-1. Navigate to the backend directory
-```bash
-cd backend
-```
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-2. Install backend dependencies
-```bash
-npm install
-```
+**Use GitHub Codespaces**
 
-3. Start the backend server
-```bash
-npm run dev
-```
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## Environment Variables
+## What technologies are used for this project?
 
-Create a `.env` file in the backend directory with the following variables:
+This project is built with .
 
-```env
-PORT=5003
-MONGO_URI=mongodb://localhost:27017/rtms
-```
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-## Contributing
+## How can I deploy this project?
 
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+Simply open [Lovable](https://lovable.dev/projects/5b212205-2d48-4c8d-8f69-a987388e6622) and click on Share -> Publish.
 
-## License
+## I want to use a custom domain - is that possible?
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
