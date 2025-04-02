@@ -44,9 +44,9 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Road Transport Management System</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">MahaTowing</h1>
               <p className="text-xl mb-8">
-                A comprehensive platform for vehicle management, fine payments, and transport-related services.
+                A comprehensive platform for Managing Towing Operations and Services.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button onClick={() => navigate("/search-vehicle")} className="bg-white text-rtms-blue hover:bg-gray-100">

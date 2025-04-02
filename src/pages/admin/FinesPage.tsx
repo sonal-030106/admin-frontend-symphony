@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,557 +11,301 @@ import {
   DialogDescription, 
   DialogFooter, 
   DialogHeader, 
-  DialogTitle 
+  DialogTitle,
+  DialogTrigger 
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useData, Fine } from "@/contexts/DataContext";
-import { useState } from "react";
-import { Plus, Search, FileText, Edit, Trash2, Filter, Check, Ban } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { getFines, createFine, updateFine as updateFineApi, deleteFine as deleteFineApi, getVehicles } from "@/services/api";
 
-const AdminFinesPage = () => {
-  const { fines, vehicles, addFine, updateFine, deleteFine } = useData();
-  
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [violationFilter, setViolationFilter] = useState("all");
-  
+interface Vehicle {
+  _id: string;
+  registrationNumber: string;
+  ownerName: string;
+}
+
+interface Fine {
+  _id: string;
+  vehicleId: string;
+  violationType: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'disputed';
+  dueDate: string;
+  description: string;
+  location: string;
+  vehicle?: Vehicle;
+}
+
+const FinesPage = () => {
+  const [fines, setFines] = useState<Fine[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  
-  const [selectedFine, setSelectedFine] = useState<Fine | null>(null);
-  
-  const [registrationNumber, setRegistrationNumber] = useState("");
-  const [violationType, setViolationType] = useState("");
-  const [amount, setAmount] = useState("");
-  const [location, setLocation] = useState("");
-  const [date, setDate] = useState("");
-  const [description, setDescription] = useState("");
-  const [officerName, setOfficerName] = useState("Officer on Duty");
-  
-  const filteredFines = fines.filter(fine => {
-    const matchesSearch = 
-      searchTerm === "" || 
-      fine.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fine.violationType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fine.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || fine.status === statusFilter;
-    const matchesViolation = violationFilter === "all" || fine.violationType === violationFilter;
-    
-    return matchesSearch && matchesStatus && matchesViolation;
+  const [formData, setFormData] = useState({
+    vehicleId: '',
+    violationType: '',
+    amount: '',
+    dueDate: '',
+    description: '',
+    location: '',
   });
-  
-  const violationTypes = Array.from(new Set(fines.map(fine => fine.violationType)));
-  
-  const openAddDialog = () => {
-    setRegistrationNumber("");
-    setViolationType("");
-    setAmount("");
-    setLocation("");
-    setDate(new Date().toISOString().split('T')[0]);
-    setDescription("");
-    setOfficerName("Officer on Duty");
-    setIsAddDialogOpen(true);
-  };
-  
-  const openEditDialog = (fine: Fine) => {
-    setSelectedFine(fine);
-    setRegistrationNumber(fine.registrationNumber);
-    setViolationType(fine.violationType);
-    setAmount(fine.amount.toString());
-    setLocation(fine.location);
-    setDate(fine.date.split('T')[0]);
-    setDescription(fine.description || "");
-    setOfficerName(fine.officerName);
-    setIsEditDialogOpen(true);
-  };
-  
-  const openDeleteDialog = (fine: Fine) => {
-    setSelectedFine(fine);
-    setIsDeleteDialogOpen(true);
-  };
-  
-  const handleAddFine = () => {
-    if (!registrationNumber || !violationType || !amount || !location || !date) {
+
+  useEffect(() => {
+    fetchFines();
+    fetchVehicles();
+  }, []);
+
+  const fetchFines = async () => {
+    try {
+      const data = await getFines();
+      setFines(data);
+    } catch (error) {
       toast({
-        title: "Missing Fields",
-        description: "Please fill all required fields",
+        title: "Error",
+        description: "Failed to fetch fines",
         variant: "destructive",
       });
-      return;
     }
-    
-    const vehicle = vehicles.find(v => v.registrationNumber === registrationNumber);
-    
-    if (!vehicle) {
+  };
+
+  const fetchVehicles = async () => {
+    try {
+      const data = await getVehicles();
+      setVehicles(data);
+    } catch (error) {
       toast({
-        title: "Invalid Registration",
-        description: "No vehicle found with this registration number",
+        title: "Error",
+        description: "Failed to fetch vehicles",
         variant: "destructive",
       });
-      return;
     }
-    
-    const newFine: Omit<Fine, "id"> = {
-      vehicleId: vehicle.id,
-      registrationNumber,
-      violationType,
-      amount: parseFloat(amount),
-      location,
-      date: new Date(date).toISOString(),
-      status: "Unpaid",
-      officerName: officerName,
-      description,
-    };
-    
-    addFine(newFine);
-    
-    setIsAddDialogOpen(false);
-    toast({
-      title: "Fine Added",
-      description: "The fine has been added successfully",
-    });
   };
-  
-  const handleEditFine = () => {
-    if (!selectedFine) return;
-    
-    if (!registrationNumber || !violationType || !amount || !location || !date) {
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createFine({
+        ...formData,
+        amount: parseFloat(formData.amount),
+      });
       toast({
-        title: "Missing Fields",
-        description: "Please fill all required fields",
+        title: "Success",
+        description: "Fine added successfully",
+      });
+      setIsAddDialogOpen(false);
+      fetchFines();
+      setFormData({
+        vehicleId: '',
+        violationType: '',
+        amount: '',
+        dueDate: '',
+        description: '',
+        location: '',
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add fine",
         variant: "destructive",
       });
-      return;
     }
-    
-    const vehicle = vehicles.find(v => v.registrationNumber === registrationNumber);
-    
-    if (!vehicle) {
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteFineApi(id);
       toast({
-        title: "Invalid Registration",
-        description: "No vehicle found with this registration number",
+        title: "Success",
+        description: "Fine deleted successfully",
+      });
+      fetchFines();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete fine",
         variant: "destructive",
       });
-      return;
     }
-    
-    const updatedFine: Partial<Fine> = {
-      vehicleId: vehicle.id,
-      registrationNumber,
-      violationType,
-      amount: parseFloat(amount),
-      location,
-      date: new Date(date).toISOString(),
-      description,
-      officerName,
-    };
-    
-    updateFine(selectedFine.id, updatedFine);
-    
-    setIsEditDialogOpen(false);
-    toast({
-      title: "Fine Updated",
-      description: "The fine has been updated successfully",
-    });
   };
-  
-  const handleDeleteFine = () => {
-    if (!selectedFine) return;
-    
-    deleteFine(selectedFine.id);
-    
-    setIsDeleteDialogOpen(false);
-    toast({
-      title: "Fine Deleted",
-      description: "The fine has been deleted successfully",
-    });
-  };
-  
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
-  
+
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Traffic Fines Management</h1>
-            <p className="text-muted-foreground">
-              Manage and track all traffic violation fines in the system
-            </p>
-          </div>
-          <Button onClick={openAddDialog}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Fine
-          </Button>
-        </div>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Traffic Fines</CardTitle>
-            <CardDescription>
-              Total fines: {fines.length} | Unpaid: {fines.filter(fine => fine.status === "Unpaid").length} | 
-              Paid: {fines.filter(fine => fine.status === "Paid").length}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="flex gap-2 flex-1">
-                <Input
-                  placeholder="Search by registration number, violation, location..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="flex-1"
-                />
-                <Button variant="outline" size="icon">
-                  <Search className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="flex gap-2">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="Paid">Paid</SelectItem>
-                    <SelectItem value="Unpaid">Unpaid</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Select value={violationFilter} onValueChange={setViolationFilter}>
-                  <SelectTrigger className="w-44">
-                    <SelectValue placeholder="Violation Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Violations</SelectItem>
-                    {violationTypes.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Button variant="ghost" size="icon" onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
-                  setViolationFilter("all");
-                }}>
-                  <Filter className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Registration No.</TableHead>
-                    <TableHead>Violation Type</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredFines.length > 0 ? (
-                    filteredFines.map(fine => (
-                      <TableRow key={fine.id}>
-                        <TableCell className="font-medium">{fine.registrationNumber}</TableCell>
-                        <TableCell>{fine.violationType}</TableCell>
-                        <TableCell>{formatDate(fine.date)}</TableCell>
-                        <TableCell>{fine.location}</TableCell>
-                        <TableCell>₹{fine.amount.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={fine.status === "Paid" ? "default" : "secondary"}
-                            className={fine.status === "Paid" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
-                          >
-                            {fine.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end space-x-2">
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => openEditDialog(fine)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => openDeleteDialog(fine)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                            >
-                              <FileText className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center h-24">
-                        No fines found matching your search criteria.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[550px]">
-            <DialogHeader>
-              <DialogTitle>Add New Fine</DialogTitle>
-              <DialogDescription>
-                Enter the details for the new traffic violation fine
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="grid gap-5 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="registrationNumber">Registration Number</Label>
-                  <Input
-                    id="registrationNumber"
-                    value={registrationNumber}
-                    onChange={(e) => setRegistrationNumber(e.target.value)}
-                    placeholder="e.g., DL05CE3456"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="violationType">Violation Type</Label>
-                  <Select value={violationType} onValueChange={setViolationType}>
-                    <SelectTrigger id="violationType">
-                      <SelectValue placeholder="Select violation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Speeding">Speeding</SelectItem>
-                      <SelectItem value="Red Light">Red Light</SelectItem>
-                      <SelectItem value="Illegal Parking">Illegal Parking</SelectItem>
-                      <SelectItem value="No Helmet">No Helmet</SelectItem>
-                      <SelectItem value="Drunk Driving">Drunk Driving</SelectItem>
-                      <SelectItem value="Wrong Side Driving">Wrong Side Driving</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Fine Amount</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Amount in ₹"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date of Violation</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Address/location of violation"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">Description (Optional)</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Additional details about the violation"
-                  rows={3}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="officerName">Officer Name</Label>
-                <Input
-                  id="officerName"
-                  value={officerName}
-                  onChange={(e) => setOfficerName(e.target.value)}
-                  placeholder="Name of issuing officer"
-                />
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddFine}>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Fines Management</h1>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Fine
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[550px]">
-            <DialogHeader>
-              <DialogTitle>Edit Fine</DialogTitle>
-              <DialogDescription>
-                Update the traffic violation fine details
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="grid gap-5 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-registrationNumber">Registration Number</Label>
-                  <Input
-                    id="edit-registrationNumber"
-                    value={registrationNumber}
-                    onChange={(e) => setRegistrationNumber(e.target.value)}
-                  />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Fine</DialogTitle>
+                <DialogDescription>
+                  Enter the fine details below
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="vehicleId">Vehicle</Label>
+                    <Select 
+                      onValueChange={(value) => 
+                        setFormData(prev => ({ ...prev, vehicleId: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select vehicle" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {vehicles.map((vehicle) => (
+                          <SelectItem key={vehicle._id} value={vehicle._id}>
+                            {vehicle.registrationNumber} - {vehicle.ownerName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="violationType">Violation Type</Label>
+                    <Select 
+                      onValueChange={(value) => 
+                        setFormData(prev => ({ ...prev, violationType: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select violation type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="speeding">Speeding</SelectItem>
+                        <SelectItem value="parking">Parking</SelectItem>
+                        <SelectItem value="signal">Signal Violation</SelectItem>
+                        <SelectItem value="documents">Missing Documents</SelectItem>
+                        <SelectItem value="others">Others</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="amount">Amount</Label>
+                    <Input
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      value={formData.amount}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="dueDate">Due Date</Label>
+                    <Input
+                      id="dueDate"
+                      name="dueDate"
+                      type="date"
+                      value={formData.dueDate}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-violationType">Violation Type</Label>
-                  <Select value={violationType} onValueChange={setViolationType}>
-                    <SelectTrigger id="edit-violationType">
-                      <SelectValue placeholder="Select violation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Speeding">Speeding</SelectItem>
-                      <SelectItem value="Red Light">Red Light</SelectItem>
-                      <SelectItem value="Illegal Parking">Illegal Parking</SelectItem>
-                      <SelectItem value="No Helmet">No Helmet</SelectItem>
-                      <SelectItem value="Drunk Driving">Drunk Driving</SelectItem>
-                      <SelectItem value="Wrong Side Driving">Wrong Side Driving</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-amount">Fine Amount</Label>
-                  <Input
-                    id="edit-amount"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-date">Date of Violation</Label>
-                  <Input
-                    id="edit-date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-location">Location</Label>
-                <Input
-                  id="edit-location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-description">Description (Optional)</Label>
-                <Textarea
-                  id="edit-description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleEditFine}>
-                <Check className="mr-2 h-4 w-4" />
-                Update Fine
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        
-        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-[400px]">
-            <DialogHeader>
-              <DialogTitle>Confirm Deletion</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this fine record? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            
-            {selectedFine && (
-              <div className="py-4">
-                <p className="mb-2"><strong>Registration Number:</strong> {selectedFine.registrationNumber}</p>
-                <p className="mb-2"><strong>Violation:</strong> {selectedFine.violationType}</p>
-                <p className="mb-2"><strong>Date:</strong> {formatDate(selectedFine.date)}</p>
-                <p><strong>Amount:</strong> ₹{selectedFine.amount.toLocaleString()}</p>
-              </div>
-            )}
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteFine}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Fine
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <Button type="submit">Save Fine</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Fine List</CardTitle>
+            <CardDescription>Manage all fines</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Vehicle</TableHead>
+                  <TableHead>Violation Type</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {fines.map((fine) => (
+                  <TableRow key={fine._id}>
+                    <TableCell>{fine.vehicle?.registrationNumber}</TableCell>
+                    <TableCell>{fine.violationType}</TableCell>
+                    <TableCell>₹{fine.amount}</TableCell>
+                    <TableCell>{new Date(fine.dueDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{fine.location}</TableCell>
+                    <TableCell>
+                      <span className={
+                        fine.status === 'paid' ? 'text-green-600' :
+                        fine.status === 'disputed' ? 'text-orange-600' :
+                        'text-red-600'
+                      }>
+                        {fine.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDelete(fine._id)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );
 };
 
-export default AdminFinesPage;
+export default FinesPage;

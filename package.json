@@ -80,5 +80,18 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"
-  }
+  },
+  "description": "**URL**: https://lovable.dev/projects/5b212205-2d48-4c8d-8f69-a987388e6622",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonal-030106/admin-frontend-symphony.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sonal-030106/admin-frontend-symphony/issues"
+  },
+  "homepage": "https://github.com/sonal-030106/admin-frontend-symphony#readme"
 }
