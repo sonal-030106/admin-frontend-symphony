@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'http://localhost:5003/api';
+const RAZORPAY_KEY_ID = 'YOUR_RAZORPAY_KEY_ID'; // Replace with your actual key
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -62,3 +63,16 @@ export const deleteFine = async (id: string) => {
   const response = await api.delete(`/fines/${id}`);
   return response.data;
 };
+
+// Payment APIs
+export const createPaymentOrder = async (fineId: string) => {
+  const response = await api.post(`/payments/create-order`, { fineId });
+  return response.data;
+};
+
+export const verifyPayment = async (paymentData: any) => {
+  const response = await api.post(`/payments/verify`, paymentData);
+  return response.data;
+};
+
+export const getRazorpayKey = () => RAZORPAY_KEY_ID;

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PaymentButton } from "@/components/PaymentButton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -287,14 +288,33 @@ const FinesPage = () => {
                         <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="destructive"
                           size="icon"
                           onClick={() => handleDelete(fine._id)}
-                          className="text-red-600"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
+                        {fine.status === 'pending' && (
+                          <PaymentButton
+                            fineId={fine._id}
+                            amount={fine.amount}
+                            onSuccess={() => {
+                              toast({
+                                title: 'Payment Successful',
+                                description: 'Fine has been paid successfully.',
+                              });
+                              fetchFines();
+                            }}
+                            onError={(error) => {
+                              toast({
+                                title: 'Payment Failed',
+                                description: error.message || 'An error occurred during payment.',
+                                variant: 'destructive',
+                              });
+                            }}
+                          />
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

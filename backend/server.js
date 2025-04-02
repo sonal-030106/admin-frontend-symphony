@@ -6,6 +6,7 @@ import connectDB from './config/db.js';
 import Vehicle from './models/Vehicle.js';
 import rtoRoutes from './routes/rtoRoutes.js';
 import fineRoutes from './routes/fineRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 
 dotenv.config();
 
@@ -20,6 +21,8 @@ app.use(morgan('dev'));
 connectDB();
 
 // Routes
+app.use('/api/payments', paymentRoutes);
+
 app.get('/api/vehicles', async (req, res) => {
   try {
     const vehicles = await Vehicle.find({});
