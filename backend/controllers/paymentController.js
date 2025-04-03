@@ -1,15 +1,20 @@
-const Razorpay = require('razorpay');
-const crypto = require('crypto');
-const Fine = require('../models/Fine');
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+import Fine from '../models/Fine.js';
 
 // Initialize Razorpay with your key_id and key_secret
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay;
+try {
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+  });
+} catch (error) {
+  console.warn('Razorpay initialization failed. Payment features will be disabled.');
+}
 
 // Create a new order
-exports.createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
   try {
     const { fineId } = req.body;
 
@@ -47,7 +52,7 @@ exports.createOrder = async (req, res) => {
 };
 
 // Verify payment
-exports.verifyPayment = async (req, res) => {
+export const verifyPayment = async (req, res) => {
   try {
     const {
       razorpay_order_id,

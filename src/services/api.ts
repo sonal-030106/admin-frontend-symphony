@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5003/api';
+const API_URL = 'http://localhost:5000/api';
 const RAZORPAY_KEY_ID = 'YOUR_RAZORPAY_KEY_ID'; // Replace with your actual key
 
 export const api = axios.create({

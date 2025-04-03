@@ -84,6 +84,13 @@ const VehiclesPage = () => {
     }));
   };
 
+  const handleVehicleTypeChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      vehicleType: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -101,10 +108,11 @@ const VehiclesPage = () => {
         registrationDate: '',
         insuranceExpiry: '',
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error adding vehicle:', error);
       toast({
         title: "Error",
-        description: "Failed to add vehicle",
+        description: error.response?.data?.message || "Failed to add vehicle",
         variant: "destructive",
       });
     }
@@ -170,16 +178,16 @@ const VehiclesPage = () => {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="vehicleType">Vehicle Type</Label>
-                    <Select 
-                      onValueChange={(value) => 
-                        setFormData(prev => ({ ...prev, vehicleType: value }))
-                      }
+                    <Select
+                      value={formData.vehicleType}
+                      onValueChange={handleVehicleTypeChange}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select vehicle type" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="2-wheeler">2 Wheeler</SelectItem>
+                        <SelectItem value="3-wheeler">3 Wheeler</SelectItem>
                         <SelectItem value="4-wheeler">4 Wheeler</SelectItem>
                         <SelectItem value="commercial">Commercial</SelectItem>
                       </SelectContent>
