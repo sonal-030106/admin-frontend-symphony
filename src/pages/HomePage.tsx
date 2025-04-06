@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { 
@@ -13,29 +12,9 @@ import {
   TrendingUp 
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { getVehicles } from "@/services/api";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const data = await getVehicles();
-        setVehicles(data);
-      } catch (err) {
-        setError("Failed to fetch vehicles");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicles();
-  }, []);
 
   return (
     <MainLayout>
@@ -61,39 +40,6 @@ const HomePage = () => {
               {/* Removed image import */}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Vehicles Section */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8">Registered Vehicles</h2>
-          {loading ? (
-            <p>Loading vehicles...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {vehicles.map((vehicle: any) => (
-                <Card key={vehicle._id}>
-                  <CardHeader>
-                    <CardTitle>{vehicle.registrationNumber}</CardTitle>
-                    <CardDescription>{vehicle.vehicleType}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p><strong>Owner:</strong> {vehicle.ownerName}</p>
-                    <p><strong>Status:</strong> <span className={`capitalize ${
-                      vehicle.status === 'active' ? 'text-green-600' :
-                      vehicle.status === 'expired' ? 'text-red-600' :
-                      'text-yellow-600'
-                    }`}>{vehicle.status}</span></p>
-                    <p><strong>Registration Date:</strong> {new Date(vehicle.registrationDate).toLocaleDateString()}</p>
-                    <p><strong>Insurance Expiry:</strong> {new Date(vehicle.insuranceExpiry).toLocaleDateString()}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 

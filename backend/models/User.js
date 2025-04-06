@@ -1,38 +1,34 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/db.js';
 
-const Vehicle = sequelize.define('Vehicle', {
+const User = sequelize.define('User', {
   registrationNumber: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
   },
-  ownerName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   phoneNumber: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  vehicleType: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  registrationDate: {
-    type: DataTypes.DATE,
-    allowNull: false,
+  email: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
-  insuranceExpiry: {
-    type: DataTypes.DATE,
-    allowNull: false,
+  role: {
+    type: DataTypes.ENUM('user', 'admin'),
+    defaultValue: 'user',
   },
   status: {
-    type: DataTypes.ENUM('active', 'expired', 'suspended'),
+    type: DataTypes.ENUM('active', 'inactive'),
     defaultValue: 'active',
   }
 }, {
   timestamps: true
 });
 
-export default Vehicle;
+export default User;

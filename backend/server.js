@@ -1,14 +1,12 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
-import connectDB from './config/db.js';
-import Vehicle from './models/Vehicle.js';
-import rtoRoutes from './routes/rtoRoutes.js';
+import { connectDB } from './config/db.js';
+import vehicleRoutes from './routes/vehicleRoutes.js';
 import fineRoutes from './routes/fineRoutes.js';
+import rtoRoutes from './routes/rtoRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
-
-dotenv.config();
 
 const app = express();
 
@@ -17,47 +15,27 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Connect to MongoDB
-connectDB();
-
-// Routes
-app.use('/api/payments', paymentRoutes);
-
-app.get('/api/vehicles', async (req, res) => {
+// Initialize database
+const startServer = async () => {
   try {
-    const vehicles = await Vehicle.find({});
-    res.json(vehicles);
+    await connectDB();
+
+    // Routes
+    app.use('/api/vehicles', vehicleRoutes);
+    app.use('/api/fines', fineRoutes);
+    app.use('/api/rtos', rtoRoutes);
+    app.use('/api/payments', paymentRoutes);
+    app.use('/api/auth', authRoutes);
+
+    const PORT = process.env.PORT || 5005;
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-});
+};
 
-app.post('/api/vehicles', async (req, res) => {
-  try {
-    const vehicle = await Vehicle.create(req.body);
-    res.status(201).json(vehicle);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-app.get('/api/vehicles/:id', async (req, res) => {
-  try {
-    const vehicle = await Vehicle.findById(req.params.id);
-    if (vehicle) {
-      res.json(vehicle);
-    } else {
-      res.status(404).json({ message: 'Vehicle not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-app.use('/api/rtos', rtoRoutes);
-app.use('/api/fines', fineRoutes);
-
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+startServer();

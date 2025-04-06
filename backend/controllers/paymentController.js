@@ -1,6 +1,6 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import Fine from '../models/Fine.js';
+import { Fine, Vehicle } from '../models/index.js';
 
 // Initialize Razorpay with your key_id and key_secret
 let razorpay;
@@ -16,10 +16,18 @@ try {
 // Create a new order
 export const createOrder = async (req, res) => {
   try {
-    const { fineId } = req.body;
+    const { fineId, phoneNumber } = req.body;
 
     // Get fine details
-    const fine = await Fine.findById(fineId);
+    const fine = await Fine.findByPk(fineId, {
+      include: [
+        {
+          model: Vehicle,
+          attributes: ['registrationNumber', 'ownerName', 'phoneNumber']
+        }
+      ]
+    });
+
     if (!fine) {
       return res.status(404).json({ message: 'Fine not found' });
     }
@@ -28,13 +36,19 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Fine is not pending' });
     }
 
+    // Verify phone number matches the registered vehicle
+    if (fine.Vehicle.phoneNumber !== phoneNumber) {
+      return res.status(403).json({ message: 'Phone number does not match the registered vehicle' });
+    }
+
     // Create order
     const options = {
       amount: fine.amount * 100, // Convert to paise
       currency: 'INR',
-      receipt: fineId,
+      receipt: fine.id.toString(),
       notes: {
-        fineId: fineId
+        fineId: fine.id,
+        vehicleId: fine.vehicleId
       }
     };
 
@@ -43,7 +57,8 @@ export const createOrder = async (req, res) => {
     res.json({
       id: order.id,
       currency: order.currency,
-      amount: order.amount
+      amount: order.amount,
+      redirectUrl: `${process.env.FRONTEND_URL}/payment-success`
     });
   } catch (error) {
     console.error('Error creating order:', error);
@@ -73,15 +88,21 @@ export const verifyPayment = async (req, res) => {
     }
 
     // Update fine status
-    const fine = await Fine.findById(fineId);
+    const fine = await Fine.findByPk(fineId);
     if (!fine) {
       return res.status(404).json({ message: 'Fine not found' });
     }
 
-    fine.status = 'paid';
-    await fine.save();
+    await fine.update({
+      status: 'paid',
+      paymentId: razorpay_payment_id,
+      paymentDate: new Date()
+    });
 
-    res.json({ message: 'Payment verified successfully' });
+    res.json({
+      message: 'Payment successful',
+      redirectUrl: `${process.env.FRONTEND_URL}/payment-success`
+    });
   } catch (error) {
     console.error('Error verifying payment:', error);
     res.status(500).json({ message: 'Error verifying payment' });

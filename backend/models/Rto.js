@@ -1,38 +1,45 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/db.js';
 
-const rtoSchema = new mongoose.Schema({
+const Rto = sequelize.define('Rto', {
   name: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   code: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
   },
   district: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   state: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   address: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   contactNumber: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   email: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isEmail: true,
+    },
   }
 }, {
   timestamps: true
 });
 
-const Rto = mongoose.model('Rto', rtoSchema);
+// Define associations
+// Rto.hasMany(Vehicle);
+// Rto.hasMany(Fine);
+
 export default Rto;

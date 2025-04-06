@@ -1,45 +1,53 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/db.js';
+import Vehicle from './Vehicle.js';
+import Rto from './Rto.js';
 
-const fineSchema = new mongoose.Schema({
+const Fine = sequelize.define('Fine', {
   vehicleId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vehicle',
-    required: true
+    type: DataTypes.INTEGER,
+    references: {
+      model: Vehicle,
+      key: 'id'
+    }
   },
   rtoId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Rto',
-    required: true
+    type: DataTypes.INTEGER,
+    references: {
+      model: Rto,
+      key: 'id'
+    }
   },
   violationType: {
-    type: String,
-    required: true,
-    enum: ['speeding', 'parking', 'signal', 'documents', 'others']
+    type: DataTypes.ENUM('speeding', 'parking', 'signal', 'documents', 'others'),
+    allowNull: false,
   },
   amount: {
-    type: Number,
-    required: true
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
   },
   status: {
-    type: String,
-    enum: ['pending', 'paid', 'disputed'],
-    default: 'pending'
+    type: DataTypes.ENUM('pending', 'paid', 'disputed'),
+    defaultValue: 'pending',
   },
   dueDate: {
-    type: Date,
-    required: true
+    type: DataTypes.DATE,
+    allowNull: false,
   },
   description: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   location: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false,
   }
 }, {
   timestamps: true
 });
 
-const Fine = mongoose.model('Fine', fineSchema);
+// Define associations
+Fine.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
+Fine.belongsTo(Rto, { foreignKey: 'rtoId' });
+
 export default Fine;

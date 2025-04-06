@@ -22,15 +22,21 @@ import { toast } from "@/components/ui/use-toast";
 import { getFines, createFine, updateFine as updateFineApi, deleteFine as deleteFineApi, getVehicles } from "@/services/api";
 
 interface Vehicle {
-  _id: string;
+  id: number;
   registrationNumber: string;
   ownerName: string;
+  phoneNumber: string;
+  vehicleType: string;
+  registrationDate: string;
+  insuranceExpiry: string;
+  status: 'active' | 'expired' | 'suspended';
 }
 
 interface Fine {
-  _id: string;
-  vehicleId: string;
-  violationType: string;
+  id: number;
+  vehicleId: number;
+  rtoId: number;
+  violationType: 'speeding' | 'parking' | 'signal' | 'documents' | 'others';
   amount: number;
   status: 'pending' | 'paid' | 'disputed';
   dueDate: string;
@@ -43,8 +49,10 @@ const FinesPage = () => {
   const [fines, setFines] = useState<Fine[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [formData, setFormData] = useState({
     vehicleId: '',
+    rtoId: '1', 
     violationType: '',
     amount: '',
     dueDate: '',
@@ -83,6 +91,15 @@ const FinesPage = () => {
     }
   };
 
+  const handleVehicleChange = (value: string) => {
+    const vehicle = vehicles.find(v => v.id.toString() === value);
+    setSelectedVehicle(vehicle || null);
+    setFormData(prev => ({
+      ...prev,
+      vehicleId: value
+    }));
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -94,10 +111,27 @@ const FinesPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createFine({
-        ...formData,
+      if (!selectedVehicle) {
+        toast({
+          title: "Error",
+          description: "Please select a vehicle",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const fineData = {
+        vehicleId: parseInt(formData.vehicleId),
+        rtoId: 1, 
+        violationType: formData.violationType,
         amount: parseFloat(formData.amount),
-      });
+        dueDate: new Date(formData.dueDate).toISOString(),
+        description: formData.description || 'No description provided',
+        location: formData.location || 'Unknown location',
+        status: 'pending'
+      };
+      
+      await createFine(fineData);
       toast({
         title: "Success",
         description: "Fine added successfully",
@@ -106,16 +140,19 @@ const FinesPage = () => {
       fetchFines();
       setFormData({
         vehicleId: '',
+        rtoId: '1',
         violationType: '',
         amount: '',
         dueDate: '',
         description: '',
         location: '',
       });
-    } catch (error) {
+      setSelectedVehicle(null);
+    } catch (error: any) {
+      console.error('Error adding fine:', error);
       toast({
         title: "Error",
-        description: "Failed to add fine",
+        description: error.response?.data?.message || "Failed to add fine",
         variant: "destructive",
       });
     }
@@ -162,28 +199,36 @@ const FinesPage = () => {
                   <div className="grid gap-2">
                     <Label htmlFor="vehicleId">Vehicle</Label>
                     <Select 
-                      onValueChange={(value) => 
-                        setFormData(prev => ({ ...prev, vehicleId: value }))
-                      }
+                      onValueChange={handleVehicleChange}
+                      value={formData.vehicleId}
+                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select vehicle" />
                       </SelectTrigger>
                       <SelectContent>
                         {vehicles.map((vehicle) => (
-                          <SelectItem key={vehicle._id} value={vehicle._id}>
+                          <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
                             {vehicle.registrationNumber} - {vehicle.ownerName}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    {selectedVehicle && (
+                      <div className="text-sm text-muted-foreground mt-1">
+                        Phone: {selectedVehicle.phoneNumber}
+                      </div>
+                    )}
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="violationType">Violation Type</Label>
                     <Select 
                       onValueChange={(value) => 
                         setFormData(prev => ({ ...prev, violationType: value }))
                       }
+                      value={formData.violationType}
+                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select violation type" />
@@ -191,23 +236,27 @@ const FinesPage = () => {
                       <SelectContent>
                         <SelectItem value="speeding">Speeding</SelectItem>
                         <SelectItem value="parking">Parking</SelectItem>
-                        <SelectItem value="signal">Signal Violation</SelectItem>
-                        <SelectItem value="documents">Missing Documents</SelectItem>
+                        <SelectItem value="signal">Signal</SelectItem>
+                        <SelectItem value="documents">Documents</SelectItem>
                         <SelectItem value="others">Others</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="amount">Amount</Label>
                     <Input
                       id="amount"
                       name="amount"
                       type="number"
+                      min="0"
+                      step="0.01"
                       value={formData.amount}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="dueDate">Due Date</Label>
                     <Input
@@ -219,6 +268,7 @@ const FinesPage = () => {
                       required
                     />
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="location">Location</Label>
                     <Input
@@ -229,6 +279,7 @@ const FinesPage = () => {
                       required
                     />
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="description">Description</Label>
                     <Textarea
@@ -240,6 +291,7 @@ const FinesPage = () => {
                     />
                   </div>
                 </div>
+
                 <DialogFooter>
                   <Button type="submit">Save Fine</Button>
                 </DialogFooter>
@@ -268,7 +320,7 @@ const FinesPage = () => {
               </TableHeader>
               <TableBody>
                 {fines.map((fine) => (
-                  <TableRow key={fine._id}>
+                  <TableRow key={fine.id}>
                     <TableCell>{fine.vehicle?.registrationNumber}</TableCell>
                     <TableCell>{fine.violationType}</TableCell>
                     <TableCell>₹{fine.amount}</TableCell>
@@ -291,13 +343,13 @@ const FinesPage = () => {
                         <Button
                           variant="destructive"
                           size="icon"
-                          onClick={() => handleDelete(fine._id)}
+                          onClick={() => handleDelete(fine.id.toString())}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                         {fine.status === 'pending' && (
                           <PaymentButton
-                            fineId={fine._id}
+                            fineId={fine.id.toString()}
                             amount={fine.amount}
                             onSuccess={() => {
                               toast({

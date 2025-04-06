@@ -1,11 +1,30 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
-const RAZORPAY_KEY_ID = 'YOUR_RAZORPAY_KEY_ID'; // Replace with your actual key
+const RAZORPAY_KEY_ID = 'rzp_test_your_key_id';
+const BASE_URL = 'http://localhost:5005/api';
 
-export const api = axios.create({
-  baseURL: API_URL,
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+// Auth endpoints
+export const register = async (userData: any) => {
+  const response = await api.post('/auth/register', userData);
+  return response.data;
+};
+
+export const login = async (credentials: any) => {
+  const response = await api.post('/auth/login', credentials);
+  return response.data;
+};
+
+export const getUserProfile = async () => {
+  const response = await api.get('/auth/profile');
+  return response.data;
+};
 
 // Vehicle APIs
 export const getVehicles = async () => {
@@ -66,13 +85,27 @@ export const deleteFine = async (id: string) => {
 
 // Payment APIs
 export const createPaymentOrder = async (fineId: string) => {
-  const response = await api.post(`/payments/create-order`, { fineId });
+  const response = await api.post(`/payments/create-order/${fineId}`);
   return response.data;
 };
 
 export const verifyPayment = async (paymentData: any) => {
-  const response = await api.post(`/payments/verify`, paymentData);
+  const response = await api.post('/payments/verify', paymentData);
   return response.data;
 };
+
+// Add auth interceptor
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export const getRazorpayKey = () => RAZORPAY_KEY_ID;

@@ -42,6 +42,7 @@ interface Vehicle {
   _id: string;
   registrationNumber: string;
   ownerName: string;
+  phoneNumber: string;
   vehicleType: string;
   registrationDate: string;
   insuranceExpiry: string;
@@ -54,6 +55,7 @@ const VehiclesPage = () => {
   const [formData, setFormData] = useState({
     registrationNumber: '',
     ownerName: '',
+    phoneNumber: '',
     vehicleType: '',
     registrationDate: '',
     insuranceExpiry: '',
@@ -104,6 +106,7 @@ const VehiclesPage = () => {
       setFormData({
         registrationNumber: '',
         ownerName: '',
+        phoneNumber: '',
         vehicleType: '',
         registrationDate: '',
         insuranceExpiry: '',
@@ -177,6 +180,16 @@ const VehiclesPage = () => {
                     />
                   </div>
                   <div className="grid gap-2">
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Input
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
                     <Label htmlFor="vehicleType">Vehicle Type</Label>
                     <Select
                       value={formData.vehicleType}
@@ -235,6 +248,7 @@ const VehiclesPage = () => {
                 <TableRow>
                   <TableHead>Registration No.</TableHead>
                   <TableHead>Owner</TableHead>
+                  <TableHead>Phone Number</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Registration Date</TableHead>
                   <TableHead>Insurance Expiry</TableHead>
@@ -247,6 +261,7 @@ const VehiclesPage = () => {
                   <TableRow key={vehicle._id}>
                     <TableCell>{vehicle.registrationNumber}</TableCell>
                     <TableCell>{vehicle.ownerName}</TableCell>
+                    <TableCell>{vehicle.phoneNumber}</TableCell>
                     <TableCell>{vehicle.vehicleType}</TableCell>
                     <TableCell>{new Date(vehicle.registrationDate).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(vehicle.insuranceExpiry).toLocaleDateString()}</TableCell>
