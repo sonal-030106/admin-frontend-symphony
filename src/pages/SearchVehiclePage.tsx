@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useData, Vehicle } from "@/contexts/DataContext";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,21 +9,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Search, AlertCircle, FileText } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+interface Vehicle {
+  id: string;
+  registrationNumber: string;
+  ownerName: string;
+  vehicleType: string;
+  status: string;
+  phoneNumber: string;
+}
+
 const SearchVehiclePage = () => {
+  console.log('Rendering SearchVehiclePage');
   const navigate = useNavigate();
-  const { vehicles, fines, loading } = useData();
-  
-  const [searchTerm, setSearchTerm] = useState("");
+  const [registrationNumber, setRegistrationNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [searchResults, setSearchResults] = useState<Vehicle[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
+    console.log('Search initiated');
     e.preventDefault();
     
-    if (!searchTerm.trim()) {
-      setError("Please enter a registration number or chassis number");
+    if (!registrationNumber.trim() || !phoneNumber.trim()) {
+      setError("Please enter both registration number and phone number");
       return;
     }
     
@@ -32,21 +41,59 @@ const SearchVehiclePage = () => {
     setIsSearching(true);
     setSearched(true);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const results = vehicles.filter(
-        vehicle => 
-          vehicle.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          vehicle.chassisNumber.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    try {
+      console.log('Making API request with:', { registrationNumber, phoneNumber });
+      console.log('Fetching from API...');
+      // Remove extra spaces and normalize registration number
+      const normalizedRegNumber = registrationNumber.replace(/\s+/g, ' ').trim();
+      // Construct the URL with proper encoding
+      const url = new URL('http://localhost:5005/api/vehicles/search');
+      url.searchParams.append('registrationNumber', normalizedRegNumber);
+      url.searchParams.append('phoneNumber', phoneNumber);
       
-      setSearchResults(results);
+      console.log('Making request to:', url.toString());
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors',
+        credentials: 'omit'
+      });
+      console.log('Normalized registration number:', normalizedRegNumber);
+      console.log('API Response:', response);
+      let data;
+      try {
+        const textData = await response.text();
+        console.log('Raw response:', textData);
+        data = textData ? JSON.parse(textData) : null;
+        console.log('Parsed data:', data);
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        throw new Error('Invalid response from server');
+      }
+
+      if (!response.ok) {
+        console.error('API Error:', { status: response.status, data });
+        throw new Error(data?.message || `Server error: ${response.status}`);
+      }
+
+      console.log('API Success:', data);
+      setSearchResults(data ? [data] : []);
+    } catch (err) {
+      console.error('Search error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to search vehicle');
+      setSearchResults([]);
+    } finally {
       setIsSearching(false);
-    }, 1000);
+    }
   };
 
   const getUnpaidFinesCount = (vehicleId: string) => {
-    return fines.filter(fine => fine.vehicleId === vehicleId && fine.status === "Unpaid").length;
+    // This will be implemented later when we add fine tracking
+    return 0;
   };
 
   const getStatusBadgeClass = (status: string) => {
@@ -72,20 +119,29 @@ const SearchVehiclePage = () => {
             <CardHeader>
               <CardTitle>Vehicle Search</CardTitle>
               <CardDescription>
-                Enter the vehicle registration number (e.g., DL05CE3456) or chassis number to search
+                Enter the vehicle registration number (e.g., DL05CE3456) and associated phone number to search
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSearch} className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Input
-                    type="text"
-                    placeholder="Enter registration number or chassis number"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button type="submit" disabled={isSearching}>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Input
+                      type="text"
+                      placeholder="Enter registration number"
+                      value={registrationNumber}
+                      onChange={(e) => setRegistrationNumber(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Input
+                      type="tel"
+                      placeholder="Enter phone number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                  <Button type="submit" disabled={isSearching} className="w-full sm:w-auto">
                     {isSearching ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -164,7 +220,7 @@ const SearchVehiclePage = () => {
                 <Alert className="bg-amber-50">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    No vehicles found matching "{searchTerm}". Please check the registration number or chassis number and try again.
+                    No vehicles found matching "{registrationNumber}". Please check the registration number and phone number and try again.
                   </AlertDescription>
                 </Alert>
               )}

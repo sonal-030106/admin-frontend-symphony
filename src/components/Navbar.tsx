@@ -41,9 +41,13 @@ const Navbar = () => {
       <div className="flex items-center space-x-4">
         <Link to="/">
           <img
-            src="/public/assets/logo.jpg"
+            src="/assets/logo.jpg"
             alt="Government of India"
             className="h-10 bg-white p-1 rounded"
+            onError={(e) => {
+              console.error('Failed to load logo');
+              e.currentTarget.src = '/assets/fallback-logo.png';
+            }}
           />
         </Link>
         <div className="hidden md:block">

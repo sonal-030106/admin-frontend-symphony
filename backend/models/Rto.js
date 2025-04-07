@@ -13,7 +13,7 @@ const Rto = sequelize.define('Rto', {
   },
   district: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   state: {
     type: DataTypes.STRING,
@@ -21,15 +21,15 @@ const Rto = sequelize.define('Rto', {
   },
   address: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   contactNumber: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     validate: {
       isEmail: true,
     },

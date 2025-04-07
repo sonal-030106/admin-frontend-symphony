@@ -55,7 +55,7 @@ const connectDB = async () => {
     // Now connect to our app database
     await sequelize.authenticate();
     console.log('PostgreSQL Connected');
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true }); // This will drop and recreate all tables
     console.log('Database synced');
   } catch (error) {
     console.error('Database Connection Error:', error);

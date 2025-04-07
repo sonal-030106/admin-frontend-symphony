@@ -89,7 +89,60 @@ export const getFineById = async (req, res) => {
 // Create fine
 export const createFine = async (req, res) => {
   try {
-    const fine = await Fine.create(req.body);
+    console.log('Received fine data:', req.body);
+    const { registrationNumber, violationType, amount, dueDate, location, description } = req.body;
+
+    if (!registrationNumber || !violationType || !amount || !dueDate) {
+      return res.status(400).json({ 
+        message: 'Missing required fields',
+        required: ['registrationNumber', 'violationType', 'amount', 'dueDate'],
+        received: req.body
+      });
+    }
+
+    // First find the vehicle by registration number
+    const vehicle = await Vehicle.findOne({
+      where: { registrationNumber }
+    });
+
+    console.log('Found vehicle:', vehicle);
+
+    if (!vehicle) {
+      return res.status(404).json({ 
+        message: 'Vehicle not found',
+        registrationNumber
+      });
+    }
+
+    // Get or create default RTO
+    let defaultRto = await Rto.findOne({
+      where: { code: 'DEFAULT' }
+    });
+
+    if (!defaultRto) {
+      defaultRto = await Rto.create({
+        name: 'Default RTO',
+        code: 'DEFAULT',
+        city: 'Default City',
+        state: 'Default State'
+      });
+    }
+
+    // Create the fine with the found vehicle ID and default RTO
+    const fine = await Fine.create({
+      vehicleId: vehicle.id,
+      rtoId: defaultRto.id,
+      violationType,
+      amount: parseFloat(amount),
+      dueDate: new Date(dueDate),
+      location: location || 'Not specified',
+      description: description || 'No description provided',
+      status: 'pending'
+    });
+
+    console.log('Created fine:', fine);
+
+    // Return the populated fine with vehicle details
     const populatedFine = await Fine.findByPk(fine.id, {
       include: [
         {

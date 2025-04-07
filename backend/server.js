@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { connectDB } from './config/db.js';
+import { seedDatabase } from './config/seedData.js';
 import vehicleRoutes from './routes/vehicleRoutes.js';
 import fineRoutes from './routes/fineRoutes.js';
 import rtoRoutes from './routes/rtoRoutes.js';
@@ -11,7 +12,16 @@ import paymentRoutes from './routes/paymentRoutes.js';
 const app = express();
 
 // Middleware
+// Enable CORS for development
 app.use(cors());
+
+// Add headers for better error handling
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  next();
+});
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -19,6 +29,7 @@ app.use(morgan('dev'));
 const startServer = async () => {
   try {
     await connectDB();
+    await seedDatabase();
 
     // Routes
     app.use('/api/vehicles', vehicleRoutes);

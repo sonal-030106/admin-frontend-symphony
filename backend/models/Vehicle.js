@@ -1,6 +1,10 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/db.js';
 
+const normalizeRegistrationNumber = (regNum) => {
+  return regNum.replace(/\s+/g, ' ').trim().toUpperCase();
+};
+
 const Vehicle = sequelize.define('Vehicle', {
   registrationNumber: {
     type: DataTypes.STRING,
@@ -32,7 +36,14 @@ const Vehicle = sequelize.define('Vehicle', {
     defaultValue: 'active',
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  hooks: {
+    beforeValidate: (vehicle) => {
+      if (vehicle.registrationNumber) {
+        vehicle.registrationNumber = normalizeRegistrationNumber(vehicle.registrationNumber);
+      }
+    }
+  }
 });
 
 export default Vehicle;

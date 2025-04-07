@@ -4,7 +4,8 @@ import {
   getVehicleById,
   createVehicle,
   updateVehicle,
-  deleteVehicle
+  deleteVehicle,
+  searchVehicle
 } from '../controllers/vehicleController.js';
 
 const router = express.Router();
@@ -12,6 +13,8 @@ const router = express.Router();
 router.route('/')
   .get(getVehicles)
   .post(createVehicle);
+
+router.get('/search', searchVehicle);
 
 router.route('/:id')
   .get(getVehicleById)

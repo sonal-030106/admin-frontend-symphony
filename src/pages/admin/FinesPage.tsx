@@ -121,14 +121,12 @@ const FinesPage = () => {
       }
 
       const fineData = {
-        vehicleId: parseInt(formData.vehicleId),
-        rtoId: 1, 
+        registrationNumber: selectedVehicle.registrationNumber,
         violationType: formData.violationType,
         amount: parseFloat(formData.amount),
         dueDate: new Date(formData.dueDate).toISOString(),
         description: formData.description || 'No description provided',
-        location: formData.location || 'Unknown location',
-        status: 'pending'
+        location: formData.location || 'Unknown location'
       };
       
       await createFine(fineData);
