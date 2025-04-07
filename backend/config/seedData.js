@@ -2,6 +2,15 @@ import Vehicle from '../models/Vehicle.js';
 
 const testVehicles = [
   {
+    registrationNumber: 'MH05CX0520',
+    ownerName: 'Sonal',
+    phoneNumber: '+918369145238',
+    vehicleType: '4-wheeler',
+    registrationDate: '2025-04-01',
+    insuranceExpiry: '2025-04-30',
+    status: 'active'
+  },
+  {
     registrationNumber: 'MH 01 CD 0987',
     ownerName: 'Amit Patil',
     phoneNumber: '9867484738',

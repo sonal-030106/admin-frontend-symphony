@@ -1,4 +1,5 @@
 import { Fine, Vehicle, Rto } from '../models/index.js';
+import { sendFineNotification } from '../services/smsService.js';
 
 // Get all fines
 export const getFines = async (req, res) => {
@@ -155,6 +156,19 @@ export const createFine = async (req, res) => {
         }
       ]
     });
+    // Send SMS notification
+    try {
+      await sendFineNotification(vehicle.phoneNumber, {
+        amount,
+        registrationNumber,
+        violationType,
+        dueDate
+      });
+    } catch (smsError) {
+      console.error('Failed to send SMS notification:', smsError);
+      // We still return success since the fine was created
+    }
+
     res.status(201).json(populatedFine);
   } catch (error) {
     res.status(500).json({ message: error.message });
