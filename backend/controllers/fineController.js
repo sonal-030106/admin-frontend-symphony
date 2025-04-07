@@ -158,18 +158,32 @@ export const createFine = async (req, res) => {
     });
     // Send SMS notification
     try {
-      await sendFineNotification(vehicle.phoneNumber, {
+      if (!vehicle.phoneNumber) {
+        throw new Error('Vehicle phone number is missing');
+      }
+      
+      console.log('Attempting to send SMS to:', vehicle.phoneNumber);
+      const smsResult = await sendFineNotification(vehicle.phoneNumber, {
         amount,
         registrationNumber,
         violationType,
         dueDate
       });
+      
+      console.log('SMS sent successfully:', smsResult.sid);
+      res.status(201).json({
+        ...populatedFine.toJSON(),
+        smsStatus: 'sent'
+      });
     } catch (smsError) {
       console.error('Failed to send SMS notification:', smsError);
-      // We still return success since the fine was created
+      // Return the fine with SMS error status
+      res.status(201).json({
+        ...populatedFine.toJSON(),
+        smsStatus: 'failed',
+        smsError: smsError.message
+      });
     }
-
-    res.status(201).json(populatedFine);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
