@@ -28,7 +28,7 @@ A full-stack web application for managing vehicle towing services, built with Re
 ### Backend
 - Node.js
 - Express.js
-- MongoDB with Mongoose
+- PostgresSQL for Database
 - JWT Authentication
 - Razorpay Integration
 - Twilio Integration
