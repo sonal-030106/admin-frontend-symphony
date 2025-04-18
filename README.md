@@ -1,6 +1,6 @@
 # MahaTowing - Digitalising Towing Operations with Technology
 
-A full-stack web application for managing vehicle towing services, built with React, Node.js, and MongoDB.
+A full-stack web application for managing vehicle towing services, built with React, Node.js, and PostgresSQL.
 
 ## Features
 
